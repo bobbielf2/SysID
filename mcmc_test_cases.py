@@ -59,8 +59,7 @@ def testCase(case, noise_level):
     modelFun    = lambda th: testFun(th, case)  # model
 
     # Model initialization
-    model = Model(dim)
-    model.buildModel(modelFun, mu_th, cov_th, mu_eps, cov_eps)
+    model = Model(modelFun, mu_th, cov_th, mu_eps, cov_eps)
     test = mcmc(niter, data, model)
 
     return test
