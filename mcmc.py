@@ -47,22 +47,20 @@ class mcmc:
     Metropolis-Hastings iterations
     '''
     def metropolis_hastings(self):
-        # initial posterior probs
-        self.th[0] = mvn.rvs(self.model.mu_th, self.model.cov_th)
-        self.p[0] = self.posterior(self.th[0])
+        # initial guess & posterior prob
+        self.th[0]  = mvn.rvs(self.model.mu_th, self.model.cov_th)
+        self.p[0]   = self.posterior(self.th[0])
 
-        th_t = self.th[0]  # current theta, theta_t
-        p_t = self.p[0]  # current p
-
+        th_t    = self.th[0]    # current theta, theta_t
+        p_t     = self.p[0]     # current p
         for i in range(1, self.niter):
 
-            if np.mod(i, np.floor(
-                    self.niter / 10)) == 1 or (self.niter - i < 10):
-                print('Iter', i)
+            if np.mod(i, np.floor(self.niter / 10)) == 1 or (self.niter - i < 10):
+                print('Iter', i, 'out of', self.niter) # print iteration info
 
-            self.th[i] = self.propose(th_t)  # propose new sample based on previous
-            self.p[i] = self.posterior(self.th[i])  # calculate posterior probability
-            alpha = min([1, self.p[i] / p_t])  # acceptance probability
+            self.th[i]  = self.propose(th_t)            # propose new sample based on previous
+            self.p[i]   = self.posterior(self.th[i])    # calculate posterior probability
+            alpha       = min([1, self.p[i] / p_t]) if p_t != 0 else 1     # acceptance probability
 
             if np.random.rand() <= alpha:  # accept or not
                 th_t = self.th[i]
