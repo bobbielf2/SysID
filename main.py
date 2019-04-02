@@ -3,7 +3,7 @@ from mcmc_test_cases import testCase
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-case        = 3                                 # test case num
+case        = 1                                 # test case num
 noise_level = 0.02                              # noise (percentage)
 test        = testCase(case, noise_level)       # generate test case
 
@@ -18,6 +18,17 @@ if case == 1:
     fig = plt.figure()
     ax1 = fig.add_subplot(121)
     ax1.scatter(th, p, s=5, c='r')
+    # find modes
+    from scipy.signal import find_peaks
+    th = th.transpose()[0] # convert to 1d vector
+    ind = np.argsort(th)  # sort p in ascending order of th
+    th_mode = th[ind]
+    p_mode = p[ind]
+    loc, _  = find_peaks(p_mode)       # find modes of th based on local max of p
+    ind2 = np.argsort(p_mode[loc])[::-1]  # sort modes in descending order
+    th_mode = th_mode[loc][ind2]
+    ax1.set_title("predicted modes (in desc order): " +
+                  ("{:.2f}, " * len(th_mode)).format(*th_mode))
     ax2 = fig.add_subplot(122)
     ax2.plot(np.r_[i_burn],th_mc[i_burn])
     plt.show()
@@ -26,8 +37,8 @@ elif case == 2:
     ax = fig.add_subplot(111, projection='3d')
     ax.scatter(th[:,0], th[:,1], p, s=5, c='r')
     mean_th = th_mc[i_burn, :].mean(axis=0)
-    ax.set_title("predicted mean: " +
-                  ("{:.2f} " * len(mean_th)).format(*mean_th))
+    ax.set_title("predicted mean: [" +
+                  ("{:.2f} " * len(mean_th)).format(*mean_th) + "]")
     plt.show()
 elif case == 3:
     import matplotlib.ticker as mtick
@@ -35,8 +46,8 @@ elif case == 3:
     ax1 = fig.add_subplot(221, projection='3d')
     ax1.scatter(th[i_burn, 0], th[i_burn, 1], p[i_burn], s=5, c='r')
     mean_th = th_mc[i_burn, :].mean(axis=0)
-    ax1.set_title("predicted mean: " +
-                  ("{:.2f} " * len(mean_th)).format(*mean_th))
+    ax1.set_title("predicted mean: [" +
+                  ("{:.2f} " * len(mean_th)).format(*mean_th) + "]")
     ax1.set_xlabel(r'$\theta_1$')
     ax1.set_ylabel(r'$\theta_2$')
     ax1.zaxis.set_major_formatter(mtick.FormatStrFormatter('%.2e'))
