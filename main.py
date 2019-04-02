@@ -3,7 +3,7 @@ from mcmc_test_cases import testCase
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-case        = 2                                 # test case num
+case        = 3                                 # test case num
 noise_level = 0.02                              # noise (percentage)
 test        = testCase(case, noise_level)       # generate test case
 
@@ -25,4 +25,24 @@ elif case == 2:
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     ax.scatter(th[:,0], th[:,1], p, s=5, c='r')
+    plt.show()
+elif case == 3:
+    fig = plt.figure()
+    ax1 = fig.add_subplot(221, projection='3d')
+    ax1.scatter(th[i_burn, 0], th[i_burn, 1], p[i_burn], s=5, c='r')
+    ax1.set_title('predicted mean: '+str(th_mc[i_burn,:].mean(axis=0)))
+    ax1.set_xlabel(r'$\theta_1$')
+    ax1.set_ylabel(r'$\theta_2$')
+    ax2 = fig.add_subplot(222, projection='3d')
+    ax2.scatter(th[i_burn, 1], th[i_burn, 2], p[i_burn], s=5, c='r')
+    ax2.set_xlabel(r'$\theta_2$')
+    ax2.set_ylabel(r'$\theta_3$')
+    ax3 = fig.add_subplot(223, projection='3d')
+    ax3.scatter(th_mc[i_burn,0],th_mc[i_burn,1],th_mc[i_burn,0],s=5,c='r')
+    # ax3.set_aspect('equal')
+    ax3.set_xlabel(r'$\theta_1$')
+    ax3.set_ylabel(r'$\theta_2$')
+    ax3.set_zlabel(r'$\theta_3$')
+    ax4 = fig.add_subplot(224, projection=None)
+    ax4.plot(th_mc) # plot Markov chain
     plt.show()
