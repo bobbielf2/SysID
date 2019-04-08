@@ -5,13 +5,14 @@ from scipy.stats import laplace
 
 class mcmc:
 
-    def __init__(self, niter, data, model):
+    def __init__(self, niter, data, model, isSparse):
         self.niter  = niter
         self.data   = data
         self.model  = model
         self.th     = np.zeros([niter, model.dim])  # quantity of interest (QoI)
         self.p      = np.zeros(niter)   # relative poterior probability
         self.th_mc  = np.zeros([niter, model.dim])  # store the Markov chain {theta_t,t=1,2,...}
+        self.isSparse = isSparse
 
     '''
     compute posterior probability
@@ -24,11 +25,12 @@ class mcmc:
 
         # compute model prediction corresp. to guess th
         predict = self.model.modelFun(th)
+        if any(predict == np.nan): # if the prediction not make sense, posterior = 0
+            return 0
         # data = predict + eps, where eps is assumed normally distr'd
         epsilon = np.linalg.norm( self.data -  predict)
 
-        isSparse = False # use sparse inducing prior?
-        if isSparse:
+        if self.isSparse:  # use sparse inducing prior?
             p_th = laplace.pdf(th, loc=mu_th, scale=cov_th).prod()
         else:
             # generic prior (assume std normal distr)
@@ -65,7 +67,7 @@ class mcmc:
 
             self.th[i]  = self.propose(th_t)            # propose new sample based on previous
             self.p[i]   = self.posterior(self.th[i])    # calculate posterior probability
-            alpha       = min([1, self.p[i] / p_t]) if p_t != 0 else 1     # acceptance probability
+            alpha       = min([1, self.p[i] / p_t]) if p_t != 0 else 1 if self.p[i] != 0 else 0     # acceptance probability
 
             if np.random.rand() <= alpha:  # accept or not
                 th_t = self.th[i]

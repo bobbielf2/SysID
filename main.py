@@ -3,8 +3,8 @@ from mcmc_test_cases import testCase
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-case        = 3                                 # test case num
-noise_level = 0.02*0                              # noise (percentage)
+case        = 4                                 # test case num
+noise_level = 0.02                              # noise (percentage)
 test        = testCase(case, noise_level)       # generate test case
 
 # MCMC: Metropolis-Hastings Iteration
@@ -12,7 +12,7 @@ test.metropolis_hastings()
 
 th = test.th  # all the theta tried
 p = test.p    # posterior prob corresp to th
-i_burn  = np.s_[int(p.size/4):p.size] # burn-in
+i_burn  = np.s_[int(p.size/2):p.size] # burn-in
 th_mc = test.th_mc
 if case == 1:
     fig = plt.figure()

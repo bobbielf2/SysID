@@ -33,6 +33,7 @@ def genData(case, noise_level):
 define test cases
 '''
 def testCase(case, noise_level):
+    isSparse = False
     if case == 1: # solve equation: y = sin(theta)
         niter   = 9000  # num of MCMC interations
         dim     = 1     # model dimensions
@@ -51,23 +52,24 @@ def testCase(case, noise_level):
         niter   = 5000  # num of MCMC interations
         dim     = 3  # model dimensions
         mu_th   = np.array([0, 0, 0])  # mean & std for prior
-        cov_th  = np.power(np.eye(dim) * 2, 2)
+        cov_th  = np.power(np.eye(dim) * 0.3, 2)
         mu_eps  = 0  # mean & std for likelihood
         cov_eps = np.power(0.2, 2)
     elif case == 4:  # system id: theta = prefactors in the PDE to be identified
-        niter   = 5000  # num of MCMC interations
+        niter   = 6000  # num of MCMC interations
         dim     = 3  # model dimensions
         mu_th   = np.zeros(dim)  # mean & std for prior
-        cov_th  = np.ones(dim) * 3 # Laplace scaling factors
+        cov_th  = np.ones(dim) * 0.3 # Laplace scaling factors
         mu_eps  = 0  # mean & std for likelihood
         cov_eps = np.power(0.2, 2)
+        isSparse = True
 
     data        = genData(case, noise_level)    # data
     modelFun    = lambda th: testFun(th, case)  # model
 
     # Model initialization
     model = Model(modelFun, mu_th, cov_th, mu_eps, cov_eps)
-    test = mcmc(niter, data, model)
+    test = mcmc(niter, data, model, isSparse)
 
     return test
 
