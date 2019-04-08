@@ -33,12 +33,15 @@ def reactDiffuse1d(th):
         try:
             U[:, i + 1] = solve_banded((1, 1), A_bands, U[:, i] + R)
         except:
-            return np.ones(U.shape) * 1000
+            U.fill(np.nan)
+            return U
         #U[:,i+1] = np.linalg.solve(A, U[:,i] + R)
-
     return U
 
 def react(u,th):
     # reaction term
-    R = th[0] * u - th[1] * np.power(u, 2) + th[2] * np.power(u, 3) + 0 * np.power(u, 4)
+    R = th[0] * u - \
+        th[1] * np.power(u, 2) + \
+        th[2] * np.power(u, 3) + \
+        0 * np.power(u, 4)
     return R
