@@ -30,7 +30,10 @@ def reactDiffuse1d(th):
 
     for i in range(n):
         R = react(U[:, i], th)
-        U[:, i + 1] = solve_banded((1,1), A_bands, U[:, i] + R)
+        try:
+            U[:, i + 1] = solve_banded((1, 1), A_bands, U[:, i] + R)
+        except:
+            return np.ones(U.shape) * 1000
         #U[:,i+1] = np.linalg.solve(A, U[:,i] + R)
 
     return U

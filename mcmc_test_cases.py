@@ -9,7 +9,7 @@ def testFun(th, case):
     elif case == 2:
         U = reactDiffuse1d(np.r_[th[0], th[0], th[1]])
         y = U.reshape(-1)
-    elif case == 3:
+    elif case == 3 or case == 4:
         U = reactDiffuse1d(th)
         y = U.reshape(-1)
     return y
@@ -20,7 +20,7 @@ def genData(case, noise_level):
         y = np.sin(2)
         y = y + np.random.randn() * noise_level  # additive noise
         #y = y * (1 + np.random.randn() * noise_level) # multiplicative noise
-    elif case in [2, 3]:
+    elif case in [2, 3, 4]:
         U = reactDiffuse1d(np.array([1, 1, 0]))
         U = U + np.random.standard_normal(
             U.shape) * noise_level  # additive noise
@@ -51,7 +51,14 @@ def testCase(case, noise_level):
         niter   = 5000  # num of MCMC interations
         dim     = 3  # model dimensions
         mu_th   = np.array([0, 0, 0])  # mean & std for prior
-        cov_th  = np.power(np.eye(dim) * 0.3, 2)
+        cov_th  = np.power(np.eye(dim) * 2, 2)
+        mu_eps  = 0  # mean & std for likelihood
+        cov_eps = np.power(0.2, 2)
+    elif case == 4:  # system id: theta = prefactors in the PDE to be identified
+        niter   = 5000  # num of MCMC interations
+        dim     = 3  # model dimensions
+        mu_th   = np.zeros(dim)  # mean & std for prior
+        cov_th  = np.ones(dim) * 3 # Laplace scaling factors
         mu_eps  = 0  # mean & std for likelihood
         cov_eps = np.power(0.2, 2)
 

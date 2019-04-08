@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.stats import multivariate_normal as mvn
+from scipy.stats import laplace
 
 
 class mcmc:
@@ -26,8 +27,12 @@ class mcmc:
         # data = predict + eps, where eps is assumed normally distr'd
         epsilon = np.linalg.norm( self.data -  predict)
 
-        # prior (assume std normal distr for now)
-        p_th = mvn.pdf(th, mean=mu_th, cov=cov_th)
+        isSparse = False # use sparse inducing prior?
+        if isSparse:
+            p_th = laplace.pdf(th, loc=mu_th, scale=cov_th).prod()
+        else:
+            # generic prior (assume std normal distr)
+            p_th = mvn.pdf(th, mean=mu_th, cov=cov_th)
         # likelihood (assume std normal distr for now)
         p_eps = mvn.pdf(epsilon, mean=mu_eps, cov=cov_eps)
         # posterior ~ likelihood * prior

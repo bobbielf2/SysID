@@ -3,8 +3,8 @@ from mcmc_test_cases import testCase
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-case        = 1                                 # test case num
-noise_level = 0.02                              # noise (percentage)
+case        = 3                                 # test case num
+noise_level = 0.02*0                              # noise (percentage)
 test        = testCase(case, noise_level)       # generate test case
 
 # MCMC: Metropolis-Hastings Iteration
@@ -42,7 +42,7 @@ elif case == 2:
     ax2 = fig.add_subplot(122)
     ax2.plot(np.r_[i_burn], th_mc[i_burn])
     plt.show()
-elif case == 3:
+elif case == 3 or case == 4:
     import matplotlib.ticker as mtick
     fig = plt.figure()
     ax1 = fig.add_subplot(221, projection='3d')
