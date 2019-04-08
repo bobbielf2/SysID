@@ -34,11 +34,13 @@ if case == 1:
     plt.show()
 elif case == 2:
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    ax.scatter(th[:,0], th[:,1], p, s=5, c='r')
+    ax1 = fig.add_subplot(121, projection='3d')
+    ax1.scatter(th[:,0], th[:,1], p, s=5, c='r')
     mean_th = th_mc[i_burn, :].mean(axis=0)
-    ax.set_title("predicted mean: [" +
+    ax1.set_title("predicted mean: [" +
                   ("{:.2f} " * len(mean_th)).format(*mean_th) + "]")
+    ax2 = fig.add_subplot(122)
+    ax2.plot(np.r_[i_burn], th_mc[i_burn])
     plt.show()
 elif case == 3:
     import matplotlib.ticker as mtick
