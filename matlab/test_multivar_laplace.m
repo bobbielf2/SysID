@@ -1,11 +1,17 @@
-s = linspace(-2,2,100);
+s = linspace(-2,2,101);
 [x, y] = meshgrid(s);
 p = zeros(size(x));
 for i = 1:numel(x)
     p(i) = mvlaplaceSym([x(i); y(i)]);
 end
 
-surf(p)
+figure
+subplot(1,2,1)
+surf(p,'edgealpha',0.1)
+subplot(1,2,2)
+z = exp(-(abs(x).^1.0+abs(y).^1.0));
+surfc(x,y,z,'edgealpha',0.1)
+%contour(x,y,z)
 
 
 function p = mvlaplaceSym(x)

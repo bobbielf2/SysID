@@ -9,4 +9,7 @@ switch test_case
     case 3
         U = reactDiffuse1d(th);
         y = U(:);
+    case 5
+        U = convectReactDiffuse1d([th,0]);
+        y = U(:);
 end

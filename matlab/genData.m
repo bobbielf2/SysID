@@ -10,4 +10,8 @@ switch test_case
         U = U + randn(size(U))*noise_level; % additive noise
         %U = U .* (1 + randn(size(U))*noise_level); % multiplicative noise
         y = U(:);
+    case 5
+        U = convectReactDiffuse1d([1,1/5,-1,0]);
+        U = U + randn(size(U))*noise_level; % additive noise
+        y = U(:);
 end

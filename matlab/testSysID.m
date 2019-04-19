@@ -1,7 +1,7 @@
 %% MCMC initialize
 
-test_case   = 1;                                % test case num
-noise_level = 0.0;                              % noise (percentage)
+test_case   = 5;                                % test case num
+noise_level = 0.02;                              % noise (percentage)
 model       = testCase(test_case,noise_level);  % generate test case
 
 % Metropolis-Hastings Iteration
@@ -46,5 +46,11 @@ switch test_case
         axis equal
         xlabel('\theta_1');ylabel('\theta_2');zlabel('\theta_3')
         subplot(2,2,4)
+        plot(th_T) % plot Markov chain
+    case 5
+        subplot(1,2,1)
+        scatter3(th(i_burn,1),th(i_burn,2),p(i_burn),5,'r')
+        title(['predicted mean: ',num2str(mean(th_T(i_burn,:)))])
+        subplot(1,2,2)
         plot(th_T) % plot Markov chain
 end
