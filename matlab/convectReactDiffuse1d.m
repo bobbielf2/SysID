@@ -1,9 +1,9 @@
 function U = convectReactDiffuse1d(th)
 
-D = th(2); % diffisivity
-a = th(1); % convection velocity
+D = th(1); % diffisivity
+a = th(2); % convection velocity
 L = 10; m = 100; % domain = [0,L]
-T = 0.85; n = 100; % time = [0,T]
+T = 0.5; n = 100; % time = [0,T]
 dx = L*2/m;
 dt = T/n;
 

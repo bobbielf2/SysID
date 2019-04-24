@@ -2,7 +2,7 @@ function U = reactDiffuse1d(th)
 
 D = 1; % diffisivity
 L = 5; m = 100; % domain = [-L,L]
-T = 0.5; n = 10; % time = [0,T]
+T = 5; n = 30; % time = [0,T]
 dx = L*2/m;
 dt = T/n;
 
@@ -19,7 +19,7 @@ U(:,1) = 0.05*exp(-5*x.^2); % initial condition
 
 for i = 1:n
     R = react(U(:,i),th);
-    U(:,i+1) = A\(U(:,i) + R);
+    U(:,i+1) = A\(U(:,i) + dt*R);
 end
 
 function R = react(u,th)
