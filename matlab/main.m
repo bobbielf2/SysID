@@ -9,7 +9,7 @@ sparse_prior    = 0;    % use Laplace prior?
 likelihood_type = 1;    % type of likelihood? 1=square of 2-norm of err (Gamma), 2=mean of err (Normal)
 
 % generate test case
-model = buildTestCase(test_case,niter,noise_level,use_sparse_prior,likelihood_type);
+model = buildTestCase(test_case,niter,noise_level,sparse_prior,likelihood_type);
 
 % Metropolis-Hastings Iteration
 model = metropolis_hastings(model);
