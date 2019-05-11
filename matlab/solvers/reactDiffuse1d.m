@@ -1,4 +1,6 @@
 function U = reactDiffuse1d(th)
+% Reaction-Diffusion equation 1-D
+% u_t = D*u_xx + R(u)
 
 D = 1; % diffisivity
 L = 5; m = 100; % domain = [-L,L]

@@ -1,4 +1,6 @@
 function U = convectReactDiffuse1d(th)
+% Convection-Reaction-Diffusion equation 1-D
+% u_t + a*u_x = D*u_xx + R(u)
 
 D = th(1); % diffisivity
 a = th(2); % convection velocity
