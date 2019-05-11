@@ -13,7 +13,14 @@ end
 % Compute likelihood for eps
 %               y = y_th + eps, where eps is assumed normally distr'd
 switch model.likelihoodType
-
+    case 0 % eps as multivariate Gaussian
+        sig_eps = model.sig_eps;
+        mu_eps = 0;
+%         eps2 = norm(model.y(:) - y_th(:))^2;
+%         ln_p_eps = -eps2/2/sig_eps^2 - numel(y_th)*log(sqrt(2*pi)*sig_eps);
+%         p_eps = exp(ln_p_eps);
+        eps = model.y(:) - y_th(:);
+        p_eps = mvnpdf(eps,zeros(numel(y_th),1),sig_eps^2*ones(1,numel(y_th)));
     case 1 % eps 2-norm squared, likelihood ~ Gamma distribution
         eps_modified = norm(model.y(:) - y_th(:))^2; 
         gam_k = numel(y_th)/2; gam_th = 2*model.sig_eps^2; % Gamma distr params

@@ -1,12 +1,13 @@
 % System identification using Bayesian inference
+setup
 
 % MCMC initialize
 
-test_case       = 5;    % test case num
-niter           = 5000; % num of iterations
+test_case       = 7;    % test case num
+niter           = 1000; % num of iterations
 noise_level     = 0.01; % noise (used as std of pointwise gaussian noise)
 sparse_prior    = 0;    % use Laplace prior?   
-likelihood_type = 1;    % type of likelihood? 1=square of 2-norm of err (Gamma), 2=mean of err (Normal)
+likelihood_type = 1;    % type of likelihood? 0=multivar Gaussian, 1=square of 2-norm of err (Gamma), 2=mean of err (Normal)
 
 % generate test case
 model = buildTestCase(test_case,niter,noise_level,sparse_prior,likelihood_type);
@@ -45,7 +46,7 @@ switch test_case
         [~, mu_eps] = model.posterior(th_m);
         title(['predicted mean: ',num2str(mean(th_T(i_burn,:)))])
         xlabel(['likelihood mean $\mu_\epsilon=$',num2str(mu_eps)],'interpreter','latex')
-    case {3, 4, 5}
+    case {3, 4, 5, 7}
         figure(1)
         subplot(2,3,2)
         scatter3(th(i_burn,1),th(i_burn,2),p(i_burn),5,'r')
@@ -65,13 +66,29 @@ switch test_case
         title(sprintf('predicted mean: %.3f, %.3f, %.3f',th_m),'interpreter','latex')
         [~, mu_eps] = model.posterior(th_m);
         xlabel(['likelihood mean $\mu_\epsilon=$',num2str(mu_eps)],'interpreter','latex')
+        %ylim([-1,1]*0.002-1); ylim([-1,1]*0.05+4); % case 7 debug
+        
         % subplot(2,3,5)
         % U = reactDiffuse1d(th_m);
         % surf(U), title('predicted solution')
     case 6
-        subplot(1,2,1)
+        figure(1)
+        subplot(2,3,2)
         scatter3(th(i_burn,1),th(i_burn,2),p(i_burn),5,'r')
-        title(['predicted mean: ',num2str(mean(th_T(i_burn,:)))])
-        subplot(1,2,2)
+        title('$\theta_1$-$\theta_2$ distribution','interpreter','latex')
+        subplot(2,3,5)
+        scatter3(th(i_burn,2),th(i_burn,3),p(i_burn),5,'r')
+        title('$\theta_2$-$\theta_3$ distribution','interpreter','latex')
+        subplot(2,3,3)
+        scatter3(th_T(i_burn,1),th_T(i_burn,2),th_T(i_burn,3),5,'r')
+        axis equal
+        title('uncertainty window')
+        xlabel('\theta_1');ylabel('\theta_2');zlabel('\theta_3')
+        subplot(2,3,6)
         plot(th_T) % plot Markov chain
+        legend({'\theta_1','\theta_2','\theta_3','\theta_4','\theta_5','\theta_6','\theta_7'})
+        th_m = mean(th_T(i_burn,:));
+        title(sprintf('predicted mean: %.3f, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f',th_m),'interpreter','latex')
+        [~, mu_eps] = model.posterior(th_m);
+        xlabel(['likelihood mean $\mu_\epsilon=$',num2str(mu_eps)],'interpreter','latex')
 end
