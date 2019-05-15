@@ -14,6 +14,7 @@ model = buildTestCase(test_case,niter,noise_level,sparse_prior,likelihood_type);
 
 % Metropolis-Hastings Iteration
 model = metropolis_hastings(model);
+%model = metropolis_hastings(model,1000); % continue for 1000 more iters
 
 %% plot resulted posterior distr
 th      = cell2mat(model.th); % all the theta tried

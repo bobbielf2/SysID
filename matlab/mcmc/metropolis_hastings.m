@@ -1,10 +1,14 @@
 function model = metropolis_hastings(model,niter_more)
 % Metropolis-Hastings iterations
+% Input
+%   model: system to be learned
+%   niter_more: resume/continue MCMC simulation for an additional
+%                   niter_more number of iterations
     
-if nargin > 1 && model.niter < niter_more
+if nargin > 1
     % continue iteration
     niter_start         = model.niter;
-    niter_end           = niter_more;
+    niter_end           = niter_start + niter_more;
     th                  = cell(niter_end,1);
     th(1:niter_start)   = model.th;
     p                   = zeros(niter_end,1);
