@@ -7,7 +7,7 @@ test_case       = 7;    % test case num
 niter           = 1000; % num of iterations
 noise_level     = 0.01; % noise (used as std of pointwise gaussian noise)
 sparse_prior    = 0;    % use Laplace prior?   
-likelihood_type = 1;    % type of likelihood? 0=multivar Gaussian, 1=square of 2-norm of err (Gamma), 2=mean of err (Normal)
+likelihood_type = 0;    % type of likelihood? 0=multivar Gaussian, 1=square of 2-norm of err (Gamma), 2=mean of err (Normal)
 
 % generate test case
 model = buildTestCase(test_case,niter,noise_level,sparse_prior,likelihood_type);
@@ -15,7 +15,7 @@ model = buildTestCase(test_case,niter,noise_level,sparse_prior,likelihood_type);
 % Metropolis-Hastings Iteration
 model = metropolis_hastings(model);
 
-% plot resulted posterior distr
+%% plot resulted posterior distr
 th      = cell2mat(model.th); % all the theta tried
 p       = model.p; p(isnan(p)) = 0; % posterior prob corresp to th
 i_burn  = floor(numel(p)/2):numel(p); % burn-in

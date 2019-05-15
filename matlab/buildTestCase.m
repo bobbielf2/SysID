@@ -40,8 +40,8 @@ switch testCase
         model.mu_eps    = 0;   % mean & std for likelihood
         model.sig_eps   = max(noise_level,1e-4);
     case 7 % sys id: 2-species react-diffuse eq. (less params) th(1:2)=diffusivities, th(3)=reaction param
-        model.mu_th     = [1/10*10, 40/10, -1]; %[0, 0, 0, 0, 0, 0, 0];   % mean & std for prior
-        model.sig_th    = [1, 1, 1]*0.005; % make convection velocity have smaller variance
+        model.mu_th     = [1/10*10, 40/10, -1]*0+1; % mean & std for prior
+        model.sig_th    = [1, 1, 1]*0.3*10; % make convection velocity have smaller variance
         model.mu_eps    = 0;   % mean & std for likelihood
         model.sig_eps   = max(noise_level,1e-4);
 end
