@@ -8,9 +8,10 @@ niter           = 1000; % num of iterations
 noise_level     = 0.01; % noise (used as std of pointwise gaussian noise)
 sparse_prior    = 0;    % use Laplace prior?   
 likelihood_type = 0;    % type of likelihood? 0=multivar Gaussian, 1=square of 2-norm of err (Gamma), 2=mean of err (Normal)
+proposal_anneal = 1;    % use annealing for the proposal?
 
 % generate test case
-model = buildTestCase(test_case,niter,noise_level,sparse_prior,likelihood_type);
+model = buildTestCase(test_case,niter,noise_level,sparse_prior,likelihood_type,proposal_anneal);
 
 % Metropolis-Hastings Iteration
 model = metropolis_hastings(model);
@@ -47,7 +48,7 @@ switch test_case
         [~, mu_eps] = model.posterior(th_m);
         title(['predicted mean: ',num2str(mean(th_T(i_burn,:)))])
         xlabel(['likelihood mean $\mu_\epsilon=$',num2str(mu_eps)],'interpreter','latex')
-    case {3, 4, 5, 7}
+    case {3, 4, 5}
         figure(1)
         subplot(2,3,2)
         scatter3(th(i_burn,1),th(i_burn,2),p(i_burn),5,'r')
@@ -92,4 +93,29 @@ switch test_case
         title(sprintf('predicted mean: %.3f, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f',th_m),'interpreter','latex')
         [~, mu_eps] = model.posterior(th_m);
         xlabel(['likelihood mean $\mu_\epsilon=$',num2str(mu_eps)],'interpreter','latex')
+    case 7
+        figure(1)
+        subplot(2,3,2)
+        scatter3(th(i_burn,1),th(i_burn,2),p(i_burn),5,'r')
+        title('$\theta_1$-$\theta_2$ distribution (log)','interpreter','latex')
+        subplot(2,3,5)
+        scatter3(th(i_burn,2),th(i_burn,3),p(i_burn),5,'r')
+        title('$\theta_2$-$\theta_3$ distribution (log)','interpreter','latex')
+        subplot(2,3,3)
+        scatter3(th_T(i_burn,1),th_T(i_burn,2),th_T(i_burn,3),5,'r')
+        axis equal
+        title('uncertainty window')
+        xlabel('\theta_1');ylabel('\theta_2');zlabel('\theta_3')
+        subplot(2,3,6)
+        plot(th_T) % plot Markov chain
+        legend({'\theta_1','\theta_2','\theta_3'})
+        th_m = mean(th_T(i_burn,:));
+        title(sprintf('predicted mean: %.3f, %.3f, %.3f',th_m),'interpreter','latex')
+        [~, mu_eps] = model.posterior(th_m);
+        xlabel(['likelihood mean $\mu_\epsilon=$',num2str(mu_eps)],'interpreter','latex')
+        %ylim([-1,1]*0.002-1); ylim([-1,1]*0.05+4); % case 7 debug
+        
+        % subplot(2,3,5)
+        % U = reactDiffuse1d(th_m);
+        % surf(U), title('predicted solution')
 end

@@ -1,5 +1,6 @@
-function model = buildTestCase(testCase,niter,noise_level,ifSparPrior,likelihoodType)
+function model = buildTestCase(testCase,niter,noise_level,ifSparPrior,likelihoodType,annealingProposal)
 
+if nargin < 6, annealingProposal = 0; end
 if nargin < 5, likelihoodType = 1; end
 if nargin < 4, ifSparPrior = 0; end
 if nargin < 3, noise_level = 0.01; end
@@ -10,7 +11,8 @@ model.testCase          = testCase;
 model.noiseLevel        = noise_level; % noise level
 model                   = buildModel(model); % data = model.y; QoI function = model.modelFun
 model.isSparse          = ifSparPrior; % use sparse inducing prior?
-model.likelihoodType    = likelihoodType; % what type of likelihood? see postProb.m
+model.likelihoodType    = likelihoodType; % what type of likelihood? see mcmc/posterior.m
+model.annealingProposal = annealingProposal; % use annealing for the proposal algorithm? see mcmc/propose.m
 model.niter             = niter; % num of MCMC interations
 
 switch testCase
@@ -40,13 +42,17 @@ switch testCase
         model.mu_eps    = 0;   % mean & std for likelihood
         model.sig_eps   = max(noise_level,1e-4);
     case 7 % sys id: 2-species react-diffuse eq. (less params) th(1:2)=diffusivities, th(3)=reaction param
-        model.mu_th     = [1/10*10, 40/10, -1]*0+1; % mean & std for prior
+        model.mu_th     = [1/10*10, 40/10, -1]*0; % mean & std for prior
         model.sig_th    = [1, 1, 1]*0.3*10; % make convection velocity have smaller variance
         model.mu_eps    = 0;   % mean & std for likelihood
         model.sig_eps   = max(noise_level,1e-4);
 end
 
-model.propose   = @(th_t) propose(th_t,model);  % proposal algorithm
+if model.annealingProposal
+    model.propose   = @(th_t,iter) propose(model,th_t,iter);  % proposal algorithm with simulated annealing
+else
+    model.propose   = @(th_t) propose(th_t,model);  % proposal algorithm
+end
 model.posterior = @(th) posterior(th,model);    % posterior
 
 % Initialize

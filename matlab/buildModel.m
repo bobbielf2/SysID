@@ -14,7 +14,7 @@ switch model.testCase
         th_true = [1/10, 40/10, 0.1, -1, 1, 0.9, -1];
         [~, ~, model.UV0] = reactDiffuse1d2sp; % get initial condition
     case 7
-        th_true = [1/10*10, 40/10, -1];
+        th_true = [log(1/10), log(40/10), -1];
         [~, ~, model.UV0] = reactDiffuse1d2sp; % get initial condition
 end
 
@@ -40,7 +40,7 @@ switch model.testCase
         drawnow
     case {6, 7}
         figure(1)
-        subplot(2,3,1), plot(reshape(U(:,end),[],2)), title('solution')
+        subplot(2,3,1), plot(reshape(U(:,end),[],2)), title(['solution, true \theta =',num2str(th_true)])
         subplot(2,3,4), plot(reshape(Un(:,end),[],2))
         title(['add noise, $\|\epsilon^*\|_2^2 =$',num2str(norm(U(:)-Un(:))^2)],'interpreter','latex')
         drawnow
@@ -62,5 +62,5 @@ switch model.testCase
     case 6
         U = reactDiffuse1d2sp(th,model.UV0);
     case 7
-        U = reactDiffuse1d2sp([th(1)/10,th(2),0.1, th(3), 1, 0.9, -1],model.UV0);
+        U = reactDiffuse1d2sp([exp(th(1)),exp(th(2)),0.1, th(3), 1, 0.9, -1],model.UV0);
 end

@@ -29,10 +29,14 @@ p_t         = model.p(niter_start);   % current p
 
 
 for i = niter_start+1:niter_end
-    if mod(i,floor((niter_end-niter_start)/10)) == 1 || (niter_end - i < 5)
+    if mod(i,ceil((niter_end-niter_start)/10)) == 1 || (niter_end - i < 5)
         disp(['Iter ',num2str(i)])
     end
-    th{i}   = model.propose(th_t);      % propose new sample based on previous
+    if model.annealingProposal
+        th{i}   = model.propose(th_t,i);    % propose new sample based on previous (with annealing)
+    else
+        th{i}   = model.propose(th_t);      % propose new sample based on previous
+    end
     p(i)    = model.posterior(th{i});   % calculate posterior probability
     if model.likelihoodType == 0
         alpha   = min([0, p(i) - p_t]);
