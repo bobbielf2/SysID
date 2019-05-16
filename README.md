@@ -2,7 +2,7 @@
 
 Identify a system using the Markov chain Monte Carlo (MCMC) simulation.
 
-Author: Bowei (Bobbie) Wu
+Author: Bowei (Bobbie) Wu, 2019
 
 ## Code structure
 
@@ -16,8 +16,8 @@ Author: Bowei (Bobbie) Wu
   * See `main.py` for the routine of implementing a MCMC model
 * `model.py` - class for building statistical inference models for a problem
   * Attributes:
-    * `Model.modelFun`: a model function G mapping the quantity of interest (QoI) `th` to the data it generates ​G(`th`)
+    * `Model.modelFun`: a model function G mapping `th`, the parameters, to G(`th`), the quantity of interest (QoI).
     * `Model.mu_th`, `Model.cov_th`: mean and covariance of the prior p(`th`)
-    * `Model.mu_eps`, `Model.cov_eps`: mean and covariance of the deviation of a given guess G(`th`) from the actual data
+    * `Model.mu_eps`, `Model.cov_eps`: mean and covariance of the likelihood p(`eps`), where `eps` = `Model.data` - G(`th`) is the deviation of a given guess of QoI from the actual data
   * See `mcmc_test_cases.py` for how to define a model
 * `mcmc_test_cases.py` - contain test cases for MCMC inference
