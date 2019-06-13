@@ -12,6 +12,14 @@ end
 
 % Compute likelihood for eps
 %               y = y_th + eps, where eps is assumed normally distr'd
+if model.testCase == 8
+    model.likelihoodType = 0;
+    sig_eps = model.sig_eps;
+    mu_eps = model.mu_eps;
+    eps = sum(abs(model.y - y_th),1)/size(y_th,1);
+    ln_p_eps = sum(-eps.^2/2./sig_eps^2/log(10) - log10(sqrt(2*pi)*sig_eps));
+    p_eps = ln_p_eps; % use a log-likelihood
+else
 switch model.likelihoodType
     case 0 % eps as multivariate Gaussian
         sig_eps = model.sig_eps;
@@ -37,6 +45,7 @@ switch model.likelihoodType
         eps_modified = mean(model.y - y_th, 'all'); 
         mu_eps = 0; sig_eps = model.sig_eps / sqrt(numel(y_th));
         p_eps = mvnpdf(eps_modified,mu_eps,sig_eps.^2); % likelihood (assume std normal distr for now)
+end
 end
 
 % Compute posterior

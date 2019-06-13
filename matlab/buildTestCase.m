@@ -1,5 +1,6 @@
-function model = buildTestCase(testCase,niter,noise_level,ifSparPrior,likelihoodType,annealingProposal)
+function model = buildTestCase(testCase,niter,noise_level,ifSparPrior,likelihoodType,annealingProposal,fixInit)
 
+if nargin < 7, fixInit = 1; end
 if nargin < 6, annealingProposal = 0; end
 if nargin < 5, likelihoodType = 1; end
 if nargin < 4, ifSparPrior = 0; end
@@ -9,6 +10,7 @@ if nargin < 2, niter = 3000; end
 % Initialization
 model.testCase          = testCase;
 model.noiseLevel        = noise_level; % noise level
+model.fixInit           = fixInit; % remember initial condition?
 model                   = buildModel(model); % data = model.y; QoI function = model.modelFun
 model.isSparse          = ifSparPrior; % use sparse inducing prior?
 model.likelihoodType    = likelihoodType; % what type of likelihood? see mcmc/posterior.m
@@ -46,10 +48,15 @@ switch testCase
         model.sig_th    = [1, 1, 1]*0.3*10; % make convection velocity have smaller variance
         model.mu_eps    = 0;   % mean & std for likelihood
         model.sig_eps   = max(noise_level,1e-4);
+    case 8 % same as case 7, but use a threshold-area statistical QoI
+        model.mu_th     = [0, 0, 0]*0; % mean & std for prior
+        model.sig_th    = [1, 1, 1]*3; % make convection velocity have smaller variance
+        model.mu_eps    = 0;   % mean & std for likelihood
+        model.sig_eps   = 0.2;
 end
 
 if model.annealingProposal
-    model.propose   = @(th_t,iter) propose(model,th_t,iter);  % proposal algorithm with simulated annealing
+    model.propose   = @(th_t,iter) propose(th_t,model,iter);  % proposal algorithm with simulated annealing
 else
     model.propose   = @(th_t) propose(th_t,model);  % proposal algorithm
 end

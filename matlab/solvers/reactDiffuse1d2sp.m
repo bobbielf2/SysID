@@ -29,7 +29,7 @@ A2 = toeplitz(c);
 f = zeros(m-1, 1);
 
 x = linspace(-L,L,m+1)';
-if nargin > 1
+if nargin > 1 && ~isempty(UV0);
     U(:,1) = UV0(1:end/2);
     V(:,1) = UV0(1+end/2:end);
 else
