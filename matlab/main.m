@@ -129,9 +129,14 @@ switch test_case
         title('$\theta_2$-$\theta_3$ distribution (log)','interpreter','latex')
         subplot(2,3,3)
         scatter3(th_T(i_burn,1),th_T(i_burn,2),th_T(i_burn,3),5,'r')
+        hold on
+        th_true = [log(0.1), log(4), -1];
+        scatter3(th_true(1),th_true(2),th_true(3),100,'k')
+        hold off
         axis equal
-        title('uncertainty window')
+        title(['uncertainty window',sprintf('solution, (true $\\theta$ = %.3f, %.3f, %.3f)',[log(0.1), log(4), -1])],'interpreter','latex')
         xlabel('\theta_1');ylabel('\theta_2');zlabel('\theta_3')
+        legend({'MC \theta''s','true \theta'})
         subplot(2,3,6)
         plot(th_T) % plot Markov chain
         legend({'\theta_1','\theta_2','\theta_3'})

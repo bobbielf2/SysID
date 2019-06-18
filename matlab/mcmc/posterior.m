@@ -1,4 +1,4 @@
-function [p, mu_eps, sig_eps] = posterior(th,model)
+function [p, mu_eps, sig_eps, p_eps] = posterior(th,model)
 
 y_th = model.modelFun(th); % compute y(theta) from my model
 
@@ -17,8 +17,8 @@ if model.testCase == 8
     sig_eps = model.sig_eps;
     mu_eps = model.mu_eps;
     eps = sum(abs(model.y - y_th),1)/size(y_th,1);
-    ln_p_eps = sum(-eps.^2/2./sig_eps^2/log(10) - log10(sqrt(2*pi)*sig_eps));
-    p_eps = ln_p_eps; % use a log-likelihood
+    log_p_eps = sum(-eps.^2/2./sig_eps^2/log(10) - log10(sqrt(2*pi)*sig_eps));
+    p_eps = log_p_eps; % use a log-likelihood
 else
 switch model.likelihoodType
     case 0 % eps as multivariate Gaussian
@@ -26,9 +26,9 @@ switch model.likelihoodType
         mu_eps = 0;
         eps2 = (model.y(:) - y_th(:)).^2;
         %ln_p_eps = -eps2/2/sig_eps^2 - numel(y_th)*log(sqrt(2*pi)*sig_eps);
-        ln_p_eps = sum(-eps2/2/sig_eps^2/log(10) - log10(sqrt(2*pi)*sig_eps));
+        log_p_eps = sum(-eps2/2/sig_eps^2/log(10) - log10(sqrt(2*pi)*sig_eps));
         %p_eps = exp(ln_p_eps);
-        p_eps = ln_p_eps; % try a log-likelihood
+        p_eps = log_p_eps; % try a log-likelihood
         if any(isnan(eps2))
             p_eps = -Inf;
         end
