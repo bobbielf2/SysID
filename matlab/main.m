@@ -3,7 +3,7 @@ setup
 
 % MCMC initialize
 
-test_case       = 8;    % test case num
+test_case       = 9;    % test case num
 niter           = 500; % num of iterations
 noise_level     = 0.01; % noise (used as std of pointwise gaussian noise)
 sparse_prior    = 0;    % use Laplace prior?   
@@ -135,6 +135,31 @@ switch test_case
         hold off
         axis equal
         title(['uncertainty window',sprintf('solution, (true $\\theta$ = %.3f, %.3f, %.3f)',[log(0.1), log(4), -1])],'interpreter','latex')
+        xlabel('\theta_1');ylabel('\theta_2');zlabel('\theta_3')
+        legend({'MC \theta''s','true \theta'})
+        subplot(2,3,6)
+        plot(th_T) % plot Markov chain
+        legend({'\theta_1','\theta_2','\theta_3'})
+        th_m = mean(th_T(i_burn,:));
+        title(sprintf('predicted mean: %.3f, %.3f, %.3f',th_m),'interpreter','latex')
+    case 9
+        figure(1)
+        subplot(2,3,4), xlim([0,10])
+        subplot(2,3,2)
+        scatter3(th(i_burn,1),th(i_burn,2),p(i_burn),5,'r')
+        title('$\theta_1$-$\theta_2$ distribution (log)','interpreter','latex')
+        subplot(2,3,5)
+        scatter3(th(i_burn,2),th(i_burn,3),p(i_burn),5,'r')
+        title('$\theta_2$-$\theta_3$ distribution (log)','interpreter','latex')
+        subplot(2,3,3)
+        scatter3(th_T(i_burn,1),th_T(i_burn,2),th_T(i_burn,3),5,'r')
+        hold on
+        th_true = [log(0.1), log(4), -1];
+        scatter3(th_true(1),th_true(2),th_true(3),100,'k')
+        hold off
+        axis equal
+%         axis([-1,1,-1,1,-1,1]*3)
+        title('uncertainty window','interpreter','latex')
         xlabel('\theta_1');ylabel('\theta_2');zlabel('\theta_3')
         legend({'MC \theta''s','true \theta'})
         subplot(2,3,6)

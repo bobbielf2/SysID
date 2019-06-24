@@ -53,6 +53,11 @@ switch testCase
         model.sig_th    = [1, 1, 1]*3; % make convection velocity have smaller variance
         model.mu_eps    = 0;   % mean & std for likelihood
         model.sig_eps   = 0.25;
+    case 9 % stats QoI: size distribution
+        model.mu_th     = [0, 0, 0]*0; % mean & std for prior
+        model.sig_th    = [1, 1, 1]*3; % make convection velocity have smaller variance
+        model.mu_eps    = 0;   % mean & std for likelihood
+        model.sig_eps   = 0.1;
 end
 
 if model.annealingProposal

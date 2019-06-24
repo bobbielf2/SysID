@@ -1,4 +1,4 @@
-function [U, V, UV0, x, dt] = reactDiffuse1d2sp(th,UV0)
+function [U, V, UV0, x, t] = reactDiffuse1d2sp(th,UV0)
 % Reaction-Diffusion equation 1-D, 2 species.
 % u_t = D1*u_xx + R1(u,v)
 % v_t = D2*v_xx + R2(u,v)
@@ -7,9 +7,9 @@ if nargin == 0, th = [1/10, 40/10, 0.1, -1, 1, 0.9, -1]; end
 
 D1 = th(1); % diffisivity
 D2 = th(2); % diffisivity
-L = 40; m = 200; % domain = [-L,L]
+L = 40; m = ceil(L/0.1); % domain = [-L,L]
 dx = L*2/m;
-T = 10; n = 1000; % time = [0,T]
+T = 15; n = ceil(T/0.01)*4; % time = [0,T]
 dt = T/n;
 
 % store solutions
@@ -29,6 +29,7 @@ A2 = toeplitz(c);
 f = zeros(m-1, 1);
 
 x = linspace(-L,L,m+1)';
+t = linspace(0,T,n+1)';
 if nargin > 1 && ~isempty(UV0)
     U(:,1) = UV0(1:end/2);
     V(:,1) = UV0(1+end/2:end);

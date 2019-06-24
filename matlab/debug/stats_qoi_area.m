@@ -93,7 +93,7 @@ ylabel('species 2')
 
 %% plot Markov chain of sysid via the stats QoIs
 
-load('sysid_statsQoI_testcase.mat','model')
+load('sysid_statsQoI_area_testcase.mat','model')
 th_T = cell2mat(model.th_T); % Markov chain of theta's
 i_burn  = floor(model.niter/2):model.niter; % burn-in
 %i_burn = 100:model.niter;
