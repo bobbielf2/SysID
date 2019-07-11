@@ -11,7 +11,6 @@ if nargin < 2, niter = 3000; end
 model.testCase          = testCase;
 model.noiseLevel        = noise_level; % noise level
 model.fixInit           = fixInit; % remember initial condition?
-model                   = buildModel(model); % data = model.y; QoI function = model.modelFun
 model.isSparse          = ifSparPrior; % use sparse inducing prior?
 model.likelihoodType    = likelihoodType; % what type of likelihood? see mcmc/posterior.m
 model.annealingProposal = annealingProposal; % use annealing for the proposal algorithm? see mcmc/propose.m
@@ -53,12 +52,28 @@ switch testCase
         model.sig_th    = [1, 1, 1]*3; % make convection velocity have smaller variance
         model.mu_eps    = 0;   % mean & std for likelihood
         model.sig_eps   = 0.25;
-    case 9 % stats QoI: size distribution
+    case 9 % stats QoI: size distribution. 3 param: th(1:2)=diffusivities, th(3)=reaction
         model.mu_th     = [0, 0, 0]*0; % mean & std for prior
         model.sig_th    = [1, 1, 1]*3; % make convection velocity have smaller variance
         model.mu_eps    = 0;   % mean & std for likelihood
         model.sig_eps   = 0.1;
+        model.threshold = 0.25;
+    case 10 % stats QoI: size distribution. 4 param: th(1:2)=diffusivities, th(3:4)=reaction param
+        model.mu_th     = [0, 0, 0, 0]*0; % mean & std for prior
+        model.sig_th    = [1, 1, 1, 1]*3; % make convection velocity have smaller variance
+        model.mu_eps    = 0;   % mean & std for likelihood
+        model.sig_eps   = 0.1;
+        model.threshold = 0.25;
+    case 11 % same QoI as case 10, on 1-species Cahn-Hilliard system
+        model.mu_th     = [0, 0, 0]*0; % mean & std for prior
+        model.sig_th    = [1, 1, 1]*3; % make convection velocity have smaller variance
+        model.mu_eps    = 0;   % mean & std for likelihood
+        model.sig_eps   = 0.03;
+        model.threshold = 0.5;
 end
+
+% define data and QoI
+model = buildModel(model); % data = model.y; QoI function = model.modelFun
 
 if model.annealingProposal
     model.propose   = @(th_t,iter) propose(th_t,model,iter);  % proposal algorithm with simulated annealing

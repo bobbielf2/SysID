@@ -19,7 +19,7 @@ if model.testCase == 8
     eps = sum(abs(model.y - y_th),1)/size(y_th,1);
     log_p_eps = sum(-eps.^2/2./sig_eps^2/log(10) - log10(sqrt(2*pi)*sig_eps));
     p_eps = log_p_eps; % use a log-likelihood
-elseif model.testCase == 9
+elseif model.testCase >= 9
     ind = union(find(model.y(:)),find(y_th(:))); % compare histograms only where at least one of y and G(th) are nonzero
     model.likelihoodType = 0;
     sig_eps = model.sig_eps;

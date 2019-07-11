@@ -1,7 +1,7 @@
 function model = buildModel(model)
 % Output:
 %   model.y           = data
-%   model.modelFun    = QoI 
+%   model.modelFun    = QoI
 
 switch model.testCase
     case 1
@@ -16,8 +16,20 @@ switch model.testCase
     case {7, 8, 9}
         th_true = [log(1/10), log(40/10), -1];
         [~, ~, model.UV0,x,t] = reactDiffuse1d2sp; % get initial condition
+    case 10
+        th_true = [log(1/10), log(40/10), -1, 1];
+        [~, ~, model.UV0,x,t] = reactDiffuse1d2sp; % get initial condition
+    case 11
+        th_true = [log(0.5),-1,1]; % [log(0.5), -1, 0, 1]
+        model.th_ind = [1,2,4];
+        [~, model.C0,t,x] = cahnhilliard1d; % get initial condition
+        dx = mean(diff(x)); % spatial grid size
+        edges = (0:2*dx:max(x)-min(x)).'; % bins of histogram for the sizes
+        edges = edges(2:end)-dx;
+        model.edges = edges;
 end
 
+model.th_true = th_true; % save the true param
 
 if model.testCase == 8
     [V1, V2] = reactDiffuse1d2sp([exp(th_true(1)),exp(th_true(2)),0.1, th_true(3), 1, 0.9, -1],model.UV0);
@@ -50,10 +62,8 @@ if model.testCase == 8
         model.y(:,i) = area;
     end
     model.modelFun = @(th) myModel(th,model); % model
-elseif model.testCase == 9
+elseif model.testCase >= 9 && model.testCase <= 11
     model.x = x; model.t = t;
-    model.threshold = 0.25;
-    model.th_true = th_true;
     model.modelFun = @(th) myModel(th,model); % model
     U = model.modelFun(th_true);
     model.y = U;
@@ -99,6 +109,26 @@ switch model.testCase
         edges = [0:2*dx:max(x)-min(x)].'; % bins of histogram for the sizes
         edges = edges(2:end)-dx;
         subplot(2,3,4), for j = 1:size(U,2), bar(edges,U(:,j)); hold on, end
+        hold off
+        drawnow
+    case 10
+        figure(1)
+        [Ut, Vt, ~, x, ~] = reactDiffuse1d2sp([exp(th_true(1)),exp(th_true(2)), 0.1, th_true(3), th_true(4), 0.9, -1],model.UV0);
+        subplot(2,3,1), plot(x,reshape([Ut(:,end),Vt(:,end)],[],2)), title(sprintf('solution, true $\\theta$ = %.3f, %.3f, %.2f, %.2f',th_true),'interpreter','latex')
+        
+        dx = mean(diff(x)); % spatial grid size
+        edges = [0:2*dx:max(x)-min(x)].'; % bins of histogram for the sizes
+        edges = edges(2:end)-dx;
+        subplot(2,3,4), for j = 1:size(U,2), bar(edges,U(:,j)); hold on, end
+        hold off
+        drawnow
+    case 11
+        figure(1)
+        th_true = model.th_true;
+        th_true(model.th_ind == 1) = exp(th_true(model.th_ind == 1));
+        [Ct, ~, ~, x] = cahnhilliard1d(model.C0,th_true,model.th_ind);
+        subplot(2,3,1), plot(x,Ct(:,end)), title(sprintf('solution, true $\\theta$ = %.3f, %.2f, %.2f, %.2f',model.th_true),'interpreter','latex')
+        subplot(2,3,4), for j = 1:size(U,2), bar(model.edges,U(:,j)); hold on, end
         hold off
         drawnow
 end
@@ -160,14 +190,14 @@ switch model.testCase
         N = size(UV,2); % num of snapshots
         edges = [0:2*dx:max(x)-min(x)]; % bins of histogram for the sizes
         U = zeros(numel(edges)-1,N);
-        for j = 1:2
+        for j = 1:N
             % normalized sample to [0,1]
             sample = UV(:,j);
             cmin = min(sample); cmax = max(sample);
             sample_sc = (sample - cmin)/(cmax - cmin);
             
             % find concentration sizes at a threshold
-            threshold = 0.25;
+            threshold = model.threshold;
             A = (sample_sc >= threshold); % find continuous components
             A = diff(A); % starting & end points of components (starting labeled 1, ending labeled -1)
             startpt = find(A == 1); endpt = find(A == -1);
@@ -187,4 +217,88 @@ switch model.testCase
                 U(:,j) = vals(:)/sum(vals);
             end
         end
+    case 10
+        if model.fixInit % better fix initial condition!
+            UV0 = model.UV0;
+        else
+            UV0 = [];
+        end
+        [Ut, Vt, ~, x, ~] = reactDiffuse1d2sp([exp(th(1)),exp(th(2)),0.1, th(3), th(4), 0.9, -1],UV0);
+        dx = mean(diff(x)); % spatial grid size
+        UV = [Ut(:,end),Vt(:,end)]; % use last snapshot of each species, should correspond to time T >= 15
+        
+        % initialize QoI: size distribution
+        N = size(UV,2); % num of snapshots
+        edges = [0:2*dx:max(x)-min(x)]; % bins of histogram for the sizes
+        U = zeros(numel(edges)-1,N);
+        for j = 1:N
+            % normalized sample to [0,1]
+            sample = UV(:,j);
+            cmin = min(sample); cmax = max(sample);
+            sample_sc = (sample - cmin)/(cmax - cmin);
+            
+            % find concentration sizes at a threshold
+            threshold = model.threshold;
+            A = (sample_sc >= threshold); % find continuous components
+            A = diff(A); % starting & end points of components (starting labeled 1, ending labeled -1)
+            startpt = find(A == 1); endpt = find(A == -1);
+            if isempty(startpt) || isempty(endpt) || (numel(startpt)==1 && numel(endpt)==1 && endpt<startpt)
+                U(end,j) = 1;
+            else
+                try
+                    if endpt(1) < startpt(1), endpt(1) = []; end % remove incomplete component at left bdry
+                    if startpt(end) > endpt(end), startpt(end) = []; end % remove incomplete component  at right bdry
+                catch
+                    keyboard
+                end
+                S = (endpt - startpt)*dx; % get sizes
+                
+                % size distribution
+                vals = histcounts(S,edges);
+                U(:,j) = vals(:)/sum(vals);
+            end
+        end
+    case 11
+        if model.fixInit % better fix initial condition!
+            C0 = model.C0;
+        else
+            C0 = [];
+        end
+        th(model.th_ind == 1) = exp(th(model.th_ind == 1));
+        [Ct, ~, ~, x] = cahnhilliard1d(C0,th,model.th_ind);
+        dx = mean(diff(x)); % spatial grid size
+        CC = Ct(:,end); % use last snapshot of each species, should correspond to time T  40
+        
+        % initialize QoI: size distribution
+        N = size(CC,2); % num of snapshots
+        edges = [0:2*dx:max(x)-min(x)]; % bins of histogram for the sizes
+        U = zeros(numel(edges)-1,N);
+        for j = 1:N
+            % normalized sample to [0,1]
+            sample = CC(:,j);
+            cmin = min(sample); cmax = max(sample);
+            sample_sc = (sample - cmin)/(cmax - cmin);
+            
+            % find concentration sizes at a threshold
+            threshold = model.threshold;
+            A = (sample_sc >= threshold); % find continuous components
+            A = diff(A); % starting & end points of components (starting labeled 1, ending labeled -1)
+            startpt = find(A == 1); endpt = find(A == -1);
+            if isempty(startpt) || isempty(endpt) || (numel(startpt)==1 && numel(endpt)==1 && endpt<startpt)
+                U(end,j) = 1;
+            else
+                try
+                    if endpt(1) < startpt(1), endpt(1) = []; end % remove incomplete component at left bdry
+                    if startpt(end) > endpt(end), startpt(end) = []; end % remove incomplete component  at right bdry
+                catch
+                    keyboard
+                end
+                S = (endpt - startpt)*dx; % get sizes
+                
+                % size distribution
+                vals = histcounts(S,edges);
+                U(:,j) = vals(:)/sum(vals);
+            end
+        end
+        
 end

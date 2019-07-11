@@ -3,13 +3,13 @@ setup
 
 % MCMC initialize
 
-test_case       = 9;    % test case num
-niter           = 500; % num of iterations
+test_case       = 11;    % test case num
+niter           = 20; % num of iterations
 noise_level     = 0.01; % noise (used as std of pointwise gaussian noise)
 sparse_prior    = 0;    % use Laplace prior?   
 likelihood_type = 0;    % type of likelihood? 0=multivar Gaussian, 1=square of 2-norm of err (Gamma), 2=mean of err (Normal)
 proposal_anneal = 0;    % use annealing for the proposal?
-fixInit         = 0;    % remember initial condition?
+fixInit         = 1;    % remember initial condition?
 
 % generate test case
 model = buildTestCase(test_case,niter,noise_level,sparse_prior,likelihood_type,proposal_anneal,fixInit);
@@ -23,7 +23,7 @@ th      = cell2mat(model.th); % all the theta tried
 p       = model.p; p(isnan(p)) = 0; % posterior prob corresp to th
 i_burn  = floor(numel(p)/2):numel(p); % burn-in
 th_T    = cell2mat(model.th_T); % Markov chain of theta's
-
+th_true = model.th_true; % true param
 switch test_case
     case 1
         subplot(1,2,1),cla
@@ -130,7 +130,6 @@ switch test_case
         subplot(2,3,3)
         scatter3(th_T(i_burn,1),th_T(i_burn,2),th_T(i_burn,3),5,'r')
         hold on
-        th_true = [log(0.1), log(4), -1];
         scatter3(th_true(1),th_true(2),th_true(3),100,'k')
         hold off
         axis equal
@@ -154,11 +153,8 @@ switch test_case
         subplot(2,3,3)
         scatter3(th_T(i_burn,1),th_T(i_burn,2),th_T(i_burn,3),5,'r')
         hold on
-        th_true = [log(0.1), log(4), -1];
         scatter3(th_true(1),th_true(2),th_true(3),100,'k')
-        hold off
-        axis equal
-%         axis([-1,1,-1,1,-1,1]*3)
+        hold off, axis equal
         title('uncertainty window','interpreter','latex')
         xlabel('\theta_1');ylabel('\theta_2');zlabel('\theta_3')
         legend({'MC \theta''s','true \theta'})
@@ -167,4 +163,52 @@ switch test_case
         legend({'\theta_1','\theta_2','\theta_3'})
         th_m = mean(th_T(i_burn,:));
         title(sprintf('predicted mean: %.3f, %.3f, %.3f',th_m),'interpreter','latex')
+    case 10
+        figure(1)
+        subplot(2,3,4), xlim([0,10])
+        subplot(2,3,2)
+        scatter3(th(i_burn,1),th(i_burn,2),p(i_burn),5,'r')
+        title('$\theta_1$-$\theta_2$ distribution (log)','interpreter','latex')
+        subplot(2,3,5)
+        scatter3(th(i_burn,2),th(i_burn,3),p(i_burn),5,'r')
+        title('$\theta_2$-$\theta_3$ distribution (log)','interpreter','latex')
+        subplot(2,3,3)
+        scatter3(th_T(i_burn,1),th_T(i_burn,2),th_T(i_burn,3),5,'r')
+        hold on
+        scatter3(th_true(1),th_true(2),th_true(3),100,'k')
+        hold off, axis equal
+        title('uncertainty window','interpreter','latex')
+        xlabel('\theta_1');ylabel('\theta_2');zlabel('\theta_3')
+        legend({'MC \theta''s','true \theta'})
+        subplot(2,3,6)
+        plot(th_T) % plot Markov chain
+        legend({'\theta_1','\theta_2','\theta_3','\theta_4'})
+        th_m = mean(th_T(i_burn,:));
+        title(sprintf('predicted mean: %.3f, %.3f, %.2f, %.2f',th_m),'interpreter','latex')
+    case 11
+        figure(1)
+        if 0
+            subplot(2,2,1)
+            th_true = model.th_true;
+            th_true(model.th_ind == 1) = exp(th_true(model.th_ind == 1));
+            [Ct, ~, ~, x] = cahnhilliard1d(model.C0,th_true,model.th_ind);
+            plot(x,Ct(:,end)), title(sprintf('solution, true $\\theta$ = %.3f, %.2f, %.2f',model.th_true),'interpreter','latex')
+            subplot(2,2,3)
+            U = model.modelFun(model.th_true);
+            dx = mean(diff(x)); edges = [0:2*dx:max(x)-min(x)].'; edges = edges(2:end)-dx; % bins of histogram for the sizes
+            for j = 1:size(U,2), bar(edges,U(:,j)); hold on, end, hold off; xlim([0,10])
+        end
+        subplot(2,2,2)
+        scatter3(th_T(i_burn,1),th_T(i_burn,2),th_T(i_burn,3),5,'r')
+        hold on
+        scatter3(th_true(1),th_true(2),th_true(3),100,'k')
+        hold off, axis equal
+        title('uncertainty window','interpreter','latex')
+        xlabel('\theta_1');ylabel('\theta_2');zlabel('\theta_3')
+        legend({'MC \theta''s','true \theta'})
+        subplot(2,2,4)
+        plot(th_T) % plot Markov chain
+        legend({'\theta_1','\theta_2','\theta_3','\theta_4'})
+        th_m = mean(th_T(i_burn,:));
+        title(sprintf('predicted mean: %.3f, %.2f, %.2f, %.2f',th_m),'interpreter','latex')
 end
