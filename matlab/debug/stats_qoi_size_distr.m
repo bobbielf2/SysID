@@ -1,12 +1,18 @@
 %% Experiment with Statistical QoI
 % generate data
+if 0
+    [U, V, ~, x, t] = reactDiffuse1d2sp; % reaction-diffusion 2 species
+    dx = mean(diff(x));
+    species{1} = U(:,end);
+    species{2} = V(:,end);
+else
+    [U, C0, t, x] = cahnhilliard1d([],[0.5,-1,5,1]); % Cahn-Hilliard 1 species
+    dx = mean(diff(x));
+    species{1} = U(:,end);
+    
+end
 
-[U, V, ~, x, t] = reactDiffuse1d2sp;
-dx = mean(diff(x));
-species{1} = U(:,end);
-species{2} = V(:,end);
-
-%%
+%%%
 figure(1);clf; set(gcf,'position',[200 200 800 300]);
 
 s = 1;
@@ -24,7 +30,7 @@ plot(x,cmax+0*x,'--k')
 
 % size distribution QoI
 
-threshold = 0.25;
+threshold = 0.5;
 plot(x,(1-threshold)*cmin+threshold*cmax+0*x,'k')
 
 A = (sample_sc >= threshold); % find continuous components
@@ -44,15 +50,15 @@ subplot(1,2,2)
 histogram(S,edges)
 [vals, edges] = histcounts(S,edges);
 
-%%
-load('sysid_statsQoI_sizDis_testcase1.mat','model')
+%% plot size distr QoI with PDE solutions
+% load('sysid_statsQoI_sizDis_testcase4_4params.mat','model')
 th_T = cell2mat(model.th_T); % Markov chain of theta's
 i_burn  = floor(model.niter/2):model.niter; % burn-in
 %i_burn = 100:model.niter;
 th_true = model.th_true; % actual theta
 x = model.x; dx = mean(diff(x)); % spatial domain
 edges = [0:2*dx:max(x)-min(x)].'; edges = edges(2:end)-dx; % bins for the size distribution
-thd = model.threshold;        
+thd = model.threshold;
 
 figure; set(gcf,'position',[200 200 800 800]);
 
@@ -88,3 +94,41 @@ title(['species 2',sprintf('solution, (true $\\theta$ = %.3f, %.3f, %.3f)',th_tr
 % legend({'\theta_1','\theta_2','\theta_3'})
 % th_m = mean(th_T(i_burn,:));
 % title(sprintf('predicted mean: %.3f, %.3f, %.3f',th_m),'interpreter','latex')
+
+%% plot Markov chain, size distr QoI, and PDE solutions
+load('sysid_statsQoI_sizDis_testcase4_4params.mat','model')
+th_T = cell2mat(model.th_T); % Markov chain of theta's
+i_burn  = floor(model.niter/2):model.niter; % burn-in
+%i_burn = 100:model.niter;
+th_true = model.th_true; % actual theta
+x = model.x; dx = mean(diff(x)); % spatial domain
+edges = [0:2*dx:max(x)-min(x)].'; edges = edges(2:end)-dx; % bins for the size distribution
+thd = model.threshold;
+
+figure; set(gcf,'position',[200 200 1000 250]);
+
+subplot(1,3,1) % plot Markov chain
+plot(th_T)
+legend({'\theta_1','\theta_2','\theta_3','\theta_4'})
+th_m = mean(th_T(i_burn,:));
+title(sprintf('predicted $\\theta=[%.3f, %.3f, %.2f, %.2f]$',th_m),'interpreter','latex')
+
+subplot(1,3,2) % plot soln
+[U, V] = reactDiffuse1d2sp([1/10, 40/10, 0.1, -1, 1, 0.9, -1],model.UV0);
+sample = U(:,end);
+cmax = max(sample); cmin = min(sample); threshold = (1-thd)*cmin+thd*cmax;
+plot(x,sample), hold on
+plot(x,0*x + threshold, '--b')
+sample = V(:,end);
+cmax = max(sample); cmin = min(sample); threshold = (1-thd)*cmin+thd*cmax;
+plot(x,sample,'r'), hold on
+plot(x,0*x + threshold, '--r')
+legend({'species 1', 'threshold 1','species 2', 'threshold 2'})
+title(['T = 15, ',sprintf('true $\\theta =[%.3f, %.3f, %.2f, %.2f]$',th_true)],'interpreter','latex')
+
+subplot(1,3,3) % plot histogram
+bar(edges,model.y(:,1)), hold on
+bar(edges,model.y(:,2)), hold off
+xlim([0, 10])
+legend({'species 1','species 2'})
+title('size distribution')
