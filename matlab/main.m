@@ -3,7 +3,7 @@ setup
 
 % MCMC initialize
 
-test_case       = 11;    % test case num
+test_case       = 12;    % test case num
 niter           = 20; % num of iterations
 noise_level     = 0.01; % noise (used as std of pointwise gaussian noise)
 sparse_prior    = 0;    % use Laplace prior?   
@@ -211,4 +211,32 @@ switch test_case
         legend({'\theta_1','\theta_2','\theta_3','\theta_4'})
         th_m = mean(th_T(i_burn,:));
         title(sprintf('predicted mean: %.3f, %.2f, %.2f, %.2f',th_m),'interpreter','latex')
+    case 12
+        figure(1)
+        if 0
+            subplot(1,2,1)
+            th_true = model.th_true;
+            th_true(model.th_ind == 1) = exp(th_true(model.th_ind == 1));
+            [Ct, ~, ~, x] = cahnhilliard1d(model.C0,th_true,model.th_ind);
+            U = model.modelFun(model.th_true);
+            plot(x,Ct(:,end)), title(sprintf('solution, true $\\theta$ = %.2f, %.2f, %.2f',model.th_true),'interpreter','latex')
+            hold on;
+            if model.imax == 1, plot(x,U(end-1:end)+0*x,'--');
+            else plot(x,U(end)+0*x,'--');  end
+            hold off
+        end
+%         subplot(1,3,3)
+%         scatter3(th_T(i_burn,1),th_T(i_burn,2),th_T(i_burn,3),5,'r')
+%         scatter3(th_T(i_burn,1),th_T(i_burn,2),th_T(i_burn,3),5,'r')
+%         hold on
+%         scatter3(th_true(1),th_true(2),th_true(3),100,'k')
+%         hold off, axis equal
+%         title('uncertainty window','interpreter','latex')
+%         xlabel('\theta_1');ylabel('\theta_2');zlabel('\theta_3')
+%         legend({'MC \theta''s','true \theta'})
+        subplot(1,2,2)
+        plot(th_T,'.-') % plot Markov chain
+        legend({'\theta_1','\theta_2','\theta_3','\theta_4'})
+        th_m = mean(th_T(i_burn,:));
+        title(sprintf('predicted mean: %.2f, %.2f, %.2f, %.2f',th_m),'interpreter','latex')
 end

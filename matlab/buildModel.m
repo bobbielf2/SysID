@@ -27,6 +27,12 @@ switch model.testCase
         edges = (0:2*dx:max(x)-min(x)).'; % bins of histogram for the sizes
         edges = edges(2:end)-dx;
         model.edges = edges;
+    case 12
+        th_true = [log(0.5),-1,1]; % [log(0.5), -1, 0, 1]
+        model.th_ind = [1,2,4];
+        [C, model.C0,t,x] = cahnhilliard1d; % get initial condition
+        model.i_snap = ceil((1:5)/5*size(C,2)); % pick snapshots for generating qoi
+        model.imax = 1; % also use the mean(loc max) as QoI?
 end
 
 model.th_true = th_true; % save the true param
@@ -62,7 +68,7 @@ if model.testCase == 8
         model.y(:,i) = area;
     end
     model.modelFun = @(th) myModel(th,model); % model
-elseif model.testCase >= 9 && model.testCase <= 11
+elseif model.testCase >= 9 && model.testCase <= 12
     model.x = x; model.t = t;
     model.modelFun = @(th) myModel(th,model); % model
     U = model.modelFun(th_true);
@@ -129,6 +135,18 @@ switch model.testCase
         [Ct, ~, ~, x] = cahnhilliard1d(model.C0,th_true,model.th_ind);
         subplot(2,3,1), plot(x,Ct(:,end)), title(sprintf('solution, true $\\theta$ = %.3f, %.2f, %.2f, %.2f',model.th_true),'interpreter','latex')
         subplot(2,3,4), for j = 1:size(U,2), bar(model.edges,U(:,j)); hold on, end
+        hold off
+        drawnow
+    case 12
+        figure(1)
+        th_true = model.th_true;
+        th_true(model.th_ind == 1) = exp(th_true(model.th_ind == 1));
+        [Ct, ~, ~, x] = cahnhilliard1d(model.C0,th_true,model.th_ind);
+        i_snap = model.i_snap;
+        subplot(1,2,1), plot(x,Ct(:,i_snap(end))), title(sprintf('solution, true $\\theta$ = %.3f, %.2f, %.2f, %.2f',model.th_true),'interpreter','latex')
+        hold on; 
+        if model.imax == 1, plot(x,U(end-1:end)+0*x,'--'); 
+        else plot(x,U(end)+0*x,'--');  end
         hold off
         drawnow
 end
@@ -300,5 +318,40 @@ switch model.testCase
                 U(:,j) = vals(:)/sum(vals);
             end
         end
+    case 12
+        if model.fixInit % better fix initial condition!
+            C0 = model.C0;
+        else
+            C0 = [];
+        end
+        th(model.th_ind == 1) = exp(th(model.th_ind == 1));
+        Ct = cahnhilliard1d(C0,th,model.th_ind);
+        i_snap = model.i_snap; N = numel(i_snap); % specify snapshots
         
+        U = []; % matrix composition QoI
+        for i = 1:N
+            sample = Ct(:,i_snap(i));
+            % find local max & min
+            variation = sign(diff(sample));
+            extrema = sign(diff(variation));
+            imax = find(extrema == -1) + 1;
+            imin = find(extrema == 1) + 1;
+            
+            if ~isempty(imin)
+                U = [U;mean(sample(imin))]; % mean of loc mins
+                %matcomp2 = mean(sample(imax)); % mean of loc maxs
+            else
+                U = [U;min(sample,[],'all')];
+            end
+            if model.imax % also use mean(local max) as QoI
+                if ~isempty(imax)
+                    U = [U;mean(sample(imax))]; % mean of loc mins
+                    %matcomp2 = mean(sample(imax)); % mean of loc maxs
+                else
+                    U = [U;max(sample,[],'all')];
+                end
+            end
+        end
+
+
 end
