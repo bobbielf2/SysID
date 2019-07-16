@@ -19,19 +19,24 @@ switch model.testCase
     case 10
         th_true = [log(1/10), log(40/10), -1, 1];
         [~, ~, model.UV0,x,t] = reactDiffuse1d2sp; % get initial condition
-    case 11
-        th_true = [log(0.5),-1,1]; % [log(0.5), -1, 0, 1]
-        model.th_ind = [1,2,4];
-        [~, model.C0,t,x] = cahnhilliard1d; % get initial condition
         dx = mean(diff(x)); % spatial grid size
         edges = (0:2*dx:max(x)-min(x)).'; % bins of histogram for the sizes
         edges = edges(2:end)-dx;
         model.edges = edges;
+    case 11
+        th_true = [log(0.5),-1,1]; % [log(0.5), -1, 0, 1]
+        model.th_ind = [1,2,4];
+        [C, model.C0,t,x] = cahnhilliard1d; % get initial condition
+        dx = mean(diff(x)); % spatial grid size
+        edges = (0:2*dx:max(x)-min(x)).'; % bins of histogram for the sizes
+        edges = edges(2:end)-dx;
+        model.edges = edges;
+        N = 5; model.i_snap = ceil((1:N)/N*size(C,2)); % pick snapshots for generating qoi
     case 12
         th_true = [log(0.5),-1,1]; % [log(0.5), -1, 0, 1]
         model.th_ind = [1,2,4];
         [C, model.C0,t,x] = cahnhilliard1d; % get initial condition
-        model.i_snap = ceil((1:5)/5*size(C,2)); % pick snapshots for generating qoi
+        N = 5; model.i_snap = ceil((1:N)/N*size(C,2)); % pick snapshots for generating qoi
         model.imax = 1; % also use the mean(loc max) as QoI?
 end
 
@@ -81,64 +86,47 @@ else
     model.y = Un;
 end
 % visualization
+figure(1)
 switch model.testCase
     case 2
-        figure(1)
         subplot(2,2,1), surf(U), title('solution')
         subplot(2,2,2), surf(Un), %title(['add noise, $\|\epsilon^*\|_2/\sqrt{m} =$',num2str(norm(U(:)-Un(:))/sqrt(numel(U)))],'interpreter','latex')
         title(['add noise, $\|\epsilon^*\|_2^2 =$',num2str(norm(U(:)-Un(:))^2)],'interpreter','latex')
-        drawnow
     case {3, 5}
-        figure(1)
         subplot(2,3,1), surf(U), title('solution')
         subplot(2,3,4), surf(Un), %title(['add noise, $\|\epsilon^*\|_2/\sqrt{m} =$',num2str(norm(U(:)-Un(:))/sqrt(numel(U)))],'interpreter','latex')
         title(['add noise, $\|\epsilon^*\|_2^2 =$',num2str(norm(U(:)-Un(:))^2)],'interpreter','latex')
         drawnow
     case {6, 7}
-        figure(1)
         subplot(2,3,1), plot(x,reshape(U(:,end),[],2)), title(['solution, true \theta =',num2str(th_true)])
         subplot(2,3,4), plot(x,reshape(Un(:,end),[],2))
         title(['add noise, $\|\epsilon^*\|_2^2 =$',num2str(norm(U(:)-Un(:))^2)],'interpreter','latex')
         drawnow
     case 8
-        figure(1)
         subplot(2,3,1), plot(x,reshape([V1(:,end),V2(:,end)],[],2)), title(sprintf('solution, true $\\theta$ = %.3f, %.3f, %.3f',th_true),'interpreter','latex')
         subplot(2,3,4), plot(x,reshape([Un(:,end/2),Un(:,end)],[],2))
         title(['add noise, $\|\epsilon^*\|_2^2 =$',num2str(norm(U(:)-Un(:))^2)],'interpreter','latex')
-        drawnow
     case 9
-        figure(1)
         [Ut, Vt, ~, x, ~] = reactDiffuse1d2sp([exp(th_true(1)),exp(th_true(2)),0.1, th_true(3), 1, 0.9, -1],model.UV0);
         subplot(2,3,1), plot(x,reshape([Ut(:,end),Vt(:,end)],[],2)), title(sprintf('solution, true $\\theta$ = %.3f, %.3f, %.3f',th_true),'interpreter','latex')
         
         dx = mean(diff(x)); % spatial grid size
         edges = [0:2*dx:max(x)-min(x)].'; % bins of histogram for the sizes
         edges = edges(2:end)-dx;
-        subplot(2,3,4), for j = 1:size(U,2), bar(edges,U(:,j)); hold on, end
-        hold off
-        drawnow
+        subplot(2,3,4), for j = 1:size(U,2), bar(edges,U(:,j)); hold on; end; hold off;
     case 10
-        figure(1)
         [Ut, Vt, ~, x, ~] = reactDiffuse1d2sp([exp(th_true(1)),exp(th_true(2)), 0.1, th_true(3), th_true(4), 0.9, -1],model.UV0);
-        subplot(2,3,1), plot(x,reshape([Ut(:,end),Vt(:,end)],[],2)), title(sprintf('solution, true $\\theta$ = %.3f, %.3f, %.2f, %.2f',th_true),'interpreter','latex')
+        subplot(1,3,1), plot(x,reshape([Ut(:,end),Vt(:,end)],[],2)), title(sprintf('solution, true $\\theta$ = %.3f, %.3f, %.2f, %.2f',th_true),'interpreter','latex')
         
-        dx = mean(diff(x)); % spatial grid size
-        edges = [0:2*dx:max(x)-min(x)].'; % bins of histogram for the sizes
-        edges = edges(2:end)-dx;
-        subplot(2,3,4), for j = 1:size(U,2), bar(edges,U(:,j)); hold on, end
-        hold off
-        drawnow
+        edges = model.edges;
+        subplot(1,3,2), for j = 1:size(U,2), bar(edges,U(:,j)); hold on, end; hold off; xlim([0,10]);
     case 11
-        figure(1)
         th_true = model.th_true;
         th_true(model.th_ind == 1) = exp(th_true(model.th_ind == 1));
         [Ct, ~, ~, x] = cahnhilliard1d(model.C0,th_true,model.th_ind);
         subplot(2,3,1), plot(x,Ct(:,end)), title(sprintf('solution, true $\\theta$ = %.3f, %.2f, %.2f, %.2f',model.th_true),'interpreter','latex')
-        subplot(2,3,4), for j = 1:size(U,2), bar(model.edges,U(:,j)); hold on, end
-        hold off
-        drawnow
+        subplot(2,3,4), for j = 1:size(U,2), bar(model.edges,U(:,j)); hold on; end; hold off; xlim([0,10])
     case 12
-        figure(1)
         th_true = model.th_true;
         th_true(model.th_ind == 1) = exp(th_true(model.th_ind == 1));
         [Ct, ~, ~, x] = cahnhilliard1d(model.C0,th_true,model.th_ind);
@@ -146,11 +134,9 @@ switch model.testCase
         subplot(1,2,1), plot(x,Ct(:,i_snap(end))), title(sprintf('solution, true $\\theta$ = %.3f, %.2f, %.2f, %.2f',model.th_true),'interpreter','latex')
         hold on; 
         if model.imax == 1, plot(x,U(end-1:end)+0*x,'--'); 
-        else plot(x,U(end)+0*x,'--');  end
-        hold off
-        drawnow
+        else, plot(x,U(end)+0*x,'--');  end; hold off;
 end
-
+drawnow % plot it
 
 function U = myModel(th,model)
 % model functions
@@ -285,15 +271,14 @@ switch model.testCase
         th(model.th_ind == 1) = exp(th(model.th_ind == 1));
         [Ct, ~, ~, x] = cahnhilliard1d(C0,th,model.th_ind);
         dx = mean(diff(x)); % spatial grid size
-        CC = Ct(:,end); % use last snapshot of each species, should correspond to time T  40
+        i_snap = model.i_snap; N = numel(i_snap); % specify snapshots
         
         % initialize QoI: size distribution
-        N = size(CC,2); % num of snapshots
         edges = [0:2*dx:max(x)-min(x)]; % bins of histogram for the sizes
         U = zeros(numel(edges)-1,N);
         for j = 1:N
             % normalized sample to [0,1]
-            sample = CC(:,j);
+            sample = Ct(:,i_snap(j));
             cmin = min(sample); cmax = max(sample);
             sample_sc = (sample - cmin)/(cmax - cmin);
             
