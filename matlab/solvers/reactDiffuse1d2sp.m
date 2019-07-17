@@ -1,9 +1,17 @@
-function [U, V, UV0, x, t] = reactDiffuse1d2sp(th,UV0)
+function [U, V, UV0, t, x] = reactDiffuse1d2sp(UV0,th_val,th_ind)
 % Reaction-Diffusion equation 1-D, 2 species.
 % u_t = D1*u_xx + R1(u,v)
 % v_t = D2*v_xx + R2(u,v)
 
-if nargin == 0, th = [1/10, 40/10, 0.1, -1, 1, 0.9, -1]; end
+th = [0.1, 4, 0.1, -1, 1, 0.9, -1]; % default param
+if nargin >= 2 && ~isempty(th_val)
+    if nargin < 3 || isempty(th_ind)
+        th_ind = 1:numel(th_val);
+    elseif numel(th_val)~=numel(th_ind)
+        error('th_val and th_ind need to have same length!')
+    end
+    th(th_ind) = th_val;
+end
 
 D1 = th(1); % diffisivity
 D2 = th(2); % diffisivity
@@ -31,13 +39,13 @@ f = zeros(m-1, 1);
 x = linspace(-L,L,m+1)';
 t = linspace(0,T,n+1)';
 if nargin > 1 && ~isempty(UV0)
-    U(:,1) = UV0(1:end/2);
-    V(:,1) = UV0(1+end/2:end);
+    U(:,1) = UV0(:,1);
+    V(:,1) = UV0(:,2);
 else
     %rng(1)
     U(:,1) = 0.5 + 0.2 * (rand(size(x))-0.5); % initial condition
     V(:,1) = 0.5 + 0.2 * (rand(size(x))-0.5); % initial condition
-    UV0 = [U(:,1); V(:,1)];
+    UV0 = [U(:,1), V(:,1)];
 end
 
 for i = 1:n

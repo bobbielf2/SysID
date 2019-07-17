@@ -1,6 +1,10 @@
 function [C,C0,t,x] = cahnhilliard1d(C0,th_val,th_ind)
+% Cahn-Hilliard equation 1-D, 1 species.
+% c_t = \laplace g'(c) - th1 * \laplace^2 c
+%       g(c) = th2 * c^2/2 + th3 * c^3/3 + th4 * c^4/4
+
 v = 0; % verbose
-th = [0.5,-1,0,1];
+th = [0.5,-1,0,1]; % default param
 if nargin >= 2 && ~isempty(th_val)
     if nargin < 3 || isempty(th_ind)
         th_ind = 1:numel(th_val);

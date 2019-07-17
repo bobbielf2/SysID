@@ -3,8 +3,8 @@ setup
 
 % MCMC initialize
 
-test_case       = 11;    % test case num
-niter           = 20; % num of iterations
+test_case       = 8;    % test case num
+niter           = 60; % num of iterations
 noise_level     = 0.01; % noise (used as std of pointwise gaussian noise)
 sparse_prior    = 0;    % use Laplace prior?   
 likelihood_type = 0;    % type of likelihood? 0=multivar Gaussian, 1=square of 2-norm of err (Gamma), 2=mean of err (Normal)
@@ -121,27 +121,10 @@ switch test_case
         subplot(2,3,6), plot(th_T,'.-') % plot Markov chain
         legend({'\theta_1','\theta_2','\theta_3'})
         title(sprintf('predicted mean: %.3f, %.3f, %.3f',th_m),'interpreter','latex')
-    case 9
-        subplot(2,3,4), xlim([0,10])
-        subplot(2,3,2)
-        scatter3(th(i_burn,1),th(i_burn,2),p(i_burn),5,'r')
-        title('$\theta_1$-$\theta_2$ distribution (log)','interpreter','latex')
-        subplot(2,3,5)
-        scatter3(th(i_burn,2),th(i_burn,3),p(i_burn),5,'r')
-        title('$\theta_2$-$\theta_3$ distribution (log)','interpreter','latex')
-        subplot(2,3,3)
-        scatter3(th_T(i_burn,1),th_T(i_burn,2),th_T(i_burn,3),5,'r'); hold on;
-        scatter3(th_true(1),th_true(2),th_true(3),100,'k'); hold off; axis equal;
-        title('uncertainty window','interpreter','latex')
-        xlabel('\theta_1');ylabel('\theta_2');zlabel('\theta_3')
-        legend({'MC \theta''s','true \theta'})
-        subplot(2,3,6), plot(th_T,'.-') % plot Markov chain
-        legend({'\theta_1','\theta_2','\theta_3'})
-        title(sprintf('predicted mean: %.3f, %.3f, %.3f',th_m),'interpreter','latex')
-    case 10
+    case {9, 10}
         subplot(1,3,3), plot(th_T,'.-') % plot Markov chain
         legend(strcat("\theta_",string(1:numel(th_m))))
-        title(sprintf('predicted mean: %.3f, %.3f, %.2f, %.2f',th_m),'interpreter','latex')
+        title(sprintf('predicted mean: %.3f, %.3f, %.1f, %.1f',th_m),'interpreter','latex')
     case 11
         if 0
             th_true = model.th_true; th_true(model.th_ind == 1) = exp(th_true(model.th_ind == 1));
