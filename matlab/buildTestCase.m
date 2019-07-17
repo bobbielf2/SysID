@@ -45,6 +45,9 @@ switch testCase
         model.th_true   = [1/10, 40/10, 0.1, -1, 1, 0.9, -1]; % true params
         model.eqtype    = 'reactdiffuse1d2sp'; 
         model.n_spec    = 2;
+        model.qoiType   = 'Downsampled';
+        model.tgap      = 100;
+        model.xgap      = 5;
         model.mu_th     = [1/10, 40/10, 0.1, -1, 1, 0.9, -1]; %[0, 0, 0, 0, 0, 0, 0];   % mean & std for prior
         model.sig_th    = [1, 1, 1, 1, 1, 1, 1]*0.3; % make convection velocity have smaller variance
         model.mu_eps    = 0;   % mean & std for likelihood
@@ -56,10 +59,10 @@ switch testCase
         model.eqtype    = 'reactdiffuse1d2sp'; 
         model.n_spec    = 2;
         model.qoiType   = 'Downsampled';
-        model.mu_eps    = 0;   % mean & std for likelihood
-        model.sig_eps   = max(noise_level,1e-4);
         model.tgap      = 100;
         model.xgap      = 5;
+        model.mu_eps    = 0;   % mean & std for likelihood
+        model.sig_eps   = max(noise_level,1e-4);
     case 8 % same as case 7, but use a threshold-area statistical QoI
         model.th_true   = [log(0.1), log(4), -1];
         model.th_ind    = [1,2,4];
@@ -111,9 +114,11 @@ switch testCase
 end
 
 % define data and QoI
-model           = buildModel(model);            % data = model.y; QoI function = model.modelFun
-model.mu_th     = zeros(size(model.th_true));   % prior mean
-model.sig_th    = 3*ones(size(model.th_true));  % prior std
+model           = buildModel(model);                % data = model.y; QoI function = model.modelFun
+if ~isfield(model,'mu_th') && ~isfield(model,'sig_th')
+    model.mu_th     = zeros(size(model.th_true));   % prior mean
+    model.sig_th    = 3*ones(size(model.th_true));  % prior std
+end
 
 if model.annealingProposal
     model.propose   = @(th_t,iter) propose(th_t,model,iter);  % proposal algorithm with simulated annealing

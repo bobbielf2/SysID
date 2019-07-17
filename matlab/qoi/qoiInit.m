@@ -1,4 +1,4 @@
-function model = qoiInit(type,samps,model)
+function model = qoiInit(samps,model)
 % Initialize QoI computation
 % Input
 %   type:       type of QoI

@@ -4,19 +4,19 @@ function model = buildModel(model)
 %   model.modelFun    = QoI
 
 % generate solution
-if model.testCase >= 7
+if model.testCase >= 6
     [samps, model.C0, t, x] = Solvers(model.th_true,model);
 end
 
 % define QoIs
-if model.testCase <= 6
+if model.testCase < 6
     model.modelFun = @(th) myModel(th,model); % model
-    U = model.modelFun(th_true);
+    U = model.modelFun(model.th_true);
     Un = U + randn(size(U))*model.noiseLevel; % additive noise
     %Un = U .* (1 + randn(size(U))*model.noiseLevel); % multiplicative noise
     model.y = Un;
 else
-    if model.testCase == 7 || model.testCase == 8
+    if model.testCase >= 6 || model.testCase <= 8
         samps0 = samps; % samples w\o noise
         samps = samps + randn(size(samps))*model.noiseLevel; % noisy samples
     end
@@ -67,7 +67,7 @@ switch model.testCase
         Ct = samps; i_snap = model.qoi.i_snap;
         subplot(1,2,1), plot(x,Ct(:,i_snap)), title(sprintf('solution, true $\\theta$ = %.3f, %.2f, %.2f, %.2f',model.th_true),'interpreter','latex')
         hold on; 
-        if model.imax == 1, plot(x,U(end-1:end)+0*x,'--'); 
+        if model.qoi.imax == 1, plot(x,U(end-1:end)+0*x,'--'); 
         else, plot(x,U(end)+0*x,'--');  end; hold off;
 end
 drawnow % plot it
@@ -75,19 +75,18 @@ drawnow % plot it
 function U = myModel(th,model)
 % model functions
 
-switch model.testCase
-    case 1
-        U = sin(th);
-    case 2
-        U = reactDiffuse1d([th(1), th(1), th(2)]);
-    case {3, 4}
-        U = reactDiffuse1d(th);
-    case 5
-        U = convectReactDiffuse1d([th,0]);
-    case 6
-        U = reactDiffuse1d2sp(model.C0,th);
-end
-if model.testCase >= 7
+if model.testCase >= 6
     samps = Solvers(th,model); % generate solution
     U = QoIs(samps,model.qoi); % compute QoI
+else
+    switch model.testCase
+        case 1
+            U = sin(th);
+        case 2
+            U = reactDiffuse1d([th(1), th(1), th(2)]);
+        case {3, 4}
+            U = reactDiffuse1d(th);
+        case 5
+            U = convectReactDiffuse1d([th,0]);
+    end
 end
