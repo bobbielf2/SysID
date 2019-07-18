@@ -39,8 +39,8 @@ f = zeros(m-1, 1);
 x = linspace(-L,L,m+1)';
 t = linspace(0,T,n+1)';
 if nargin > 1 && ~isempty(UV0)
-    U(:,1) = UV0(:,1);
-    V(:,1) = UV0(:,2);
+    U(:,1) = UV0(1:end/2);
+    V(:,1) = UV0(1+end/2:end);
 else
     %rng(1)
     U(:,1) = 0.5 + 0.2 * (rand(size(x))-0.5); % initial condition

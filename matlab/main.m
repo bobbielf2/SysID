@@ -3,8 +3,8 @@ setup
 
 % MCMC initialize
 
-test_case       = 11;    % test case num
-niter           = 20; % num of iterations
+test_case       = 10;    % test case num
+niter           = 800; % num of iterations
 noise_level     = 0.01; % noise (used as std of pointwise gaussian noise)
 sparse_prior    = 0;    % use Laplace prior?   
 likelihood_type = 0;    % type of likelihood? 0=multivar Gaussian, 1=square of 2-norm of err (Gamma), 2=mean of err (Normal)
@@ -21,7 +21,7 @@ model = metropolis_hastings(model);
 %% plot resulted posterior distr
 th      = cell2mat(model.th); % all the theta tried
 p       = model.p; p(isnan(p)) = 0; % posterior prob corresp to th
-i_burn  = floor(numel(p)/2):numel(p); % burn-in
+i_burn  = floor(numel(p)/4):numel(p); % burn-in
 th_T    = cell2mat(model.th_T); % Markov chain of theta's
 th_m    = mean(th_T(i_burn,:)); % predicted mean
 th_true = model.th_true; % true param
@@ -122,9 +122,19 @@ switch test_case
         legend({'\theta_1','\theta_2','\theta_3'})
         title(sprintf('predicted mean: %.3f, %.3f, %.3f',th_m),'interpreter','latex')
     case {9, 10}
+        if 1
+            [Ct, ~, ~, x] = Solvers(model.th_true,model);
+            subplot(1,3,2), plot(x,Ct(:,model.qoi.i_snap))
+            title(sprintf('solution, true $\\theta$ = %.3f, %.3f, %.3f',model.th_true),'interpreter','latex')
+            U = QoIs(Ct,model.qoi);
+            edges = model.qoi.edges(2:end) - model.qoi.dx; % size distr QoI
+            subplot(1,3,1), for j = 1:size(U,2), bar(edges,U(:,j)); hold on, end
+            legend(strcat("species",string(1:2))); xlim([0,10]); hold off;
+        end
         subplot(1,3,3), plot(th_T,'.-') % plot Markov chain
         legend(strcat("\theta_",string(1:numel(th_m))))
-        title(sprintf('predicted mean: %.3f, %.3f, %.1f, %.1f',th_m),'interpreter','latex')
+        %title(sprintf('predicted mean: %.3f, %.3f, %.1f, %.1f',th_m),'interpreter','latex')
+        title(sprintf('predicted mean: %.3f, %.3f, %.3f',th_m),'interpreter','latex')
     case 11
         if 0
             [Ct, ~, ~, x] = Solvers(model.th_true,model);
@@ -139,13 +149,14 @@ switch test_case
         legend(strcat("\theta_",string(1:numel(th_m))))
         title(sprintf('predicted mean: %.3f, %.2f, %.2f, %.2f',th_m),'interpreter','latex')
     case 12
-        if 0
+        if 1
             [Ct, ~, ~, x] = Solvers(model.th_true,model);
             U = QoIs(Ct,model.qoi);
             subplot(1,2,1), plot(x,Ct(:,end)); hold on;
-            title(sprintf('solution, true $\\theta$ = %.2f, %.2f, %.2f',model.th_true),'interpreter','latex')
-            if model.qoi.imax == 1, plot(x,U(end-1:end)+0*x,'--');
-            else, plot(x,U(end)+0*x,'--');  end; hold off
+            title(sprintf('solution, true $\\theta$ = %.3f, %.2f, %.2f',model.th_true),'interpreter','latex')
+            if model.qoi.imax == 1, plot(x,U(end-1:end)+0*x,'--','linewidth',1);
+            else, plot(x,U(end)+0*x,'--','linewidth',1);  end; hold off
+            legend({'snapshot','loc min','loc max'})
         end
         subplot(1,2,2), plot(th_T,'.-') % plot Markov chain
         legend(strcat("\theta_",string(1:numel(th_m))))
