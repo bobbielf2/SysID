@@ -41,7 +41,7 @@ switch model.likelihoodType
         mu_eps = 0;
         eps2 = (model.y(:) - y_th(:)).^2;
         %ln_p_eps = -eps2/2/sig_eps^2 - numel(y_th)*log(sqrt(2*pi)*sig_eps);
-        log_p_eps = sum(-eps2/2/sig_eps^2/log(10) - log10(sqrt(2*pi)*sig_eps));
+        log_p_eps = sum(-eps2/2./sig_eps.^2/log(10) - log10(sqrt(2*pi)*sig_eps));
         %p_eps = exp(ln_p_eps);
         p_eps = log_p_eps; % try a log-likelihood
         if any(isnan(eps2))

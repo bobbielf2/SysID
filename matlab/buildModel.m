@@ -16,7 +16,7 @@ if model.testCase < 6
     %Un = U .* (1 + randn(size(U))*model.noiseLevel); % multiplicative noise
     model.y = Un;
 else
-    if model.testCase >= 6 || model.testCase <= 8
+    if model.testCase >= 6 && model.testCase <= 8
         samps0 = samps; % samples w\o noise
         samps = samps + randn(size(samps))*model.noiseLevel; % noisy samples
     end

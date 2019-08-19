@@ -1,7 +1,7 @@
 %% Experiment with Statistical QoI
 % generate data
-if 0
-    [U, V, ~, x, t] = reactDiffuse1d2sp; % reaction-diffusion 2 species
+if 1
+    [U, V, ~, t, x] = reactDiffuse1d2sp; % reaction-diffusion 2 species
     dx = mean(diff(x));
     species{1} = U(:,end);
     species{2} = V(:,end);

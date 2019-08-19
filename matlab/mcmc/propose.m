@@ -1,9 +1,9 @@
-function th = propose(th_t,model,iter)
+function th = propose(th_t,model)
 % proposal algorithm, given the current theta_t, propose the next theta
 if nargin == 0, testPropose; return; end
 
-if nargin == 3
-    sig = model.sig_th*0 + 1 / (1+iter/100); % annealing
+if isfield(model,'sig_q')
+    sig = model.sig_q; % use predefined sigma (also for tuning)
 else
     sig = model.sig_th*0 + 0.5; % std deviation for the proposal distr
 end

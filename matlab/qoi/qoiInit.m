@@ -30,7 +30,16 @@ qoi.type = type;
 switch type
     case 'SizeDistr'
         x = model.x; dx = mean(diff(x)); % spatial grid size
-        qoi.edges = (0:2*dx:max(x)-min(x)).'; % bins of histogram for the sizes
+        if isfield(model,'k_dx')
+            qoi.k_dx = model.k_dx;
+        else
+            qoi.k_dx = 2;
+        end
+        qoi.edges = (0:qoi.k_dx*dx:max(x)-min(x)).'; % bins of histogram for the sizes
+        qoi.threshold = model.threshold;
+        qoi.dx = dx; % grid spacing
+    case 'SizeMeanVar'
+        x = model.x; dx = mean(diff(x)); % spatial grid size
         qoi.threshold = model.threshold;
         qoi.dx = dx; % grid spacing
     case 'MatrixComp'

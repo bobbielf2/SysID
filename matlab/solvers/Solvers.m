@@ -1,7 +1,7 @@
 function [C,C0,t,x] = Solvers(th,model)
 
 % fixed initial condition?
-if model.fixInit && isfield(model,'C0')
+if isfield(model,'fixInit') && model.fixInit && isfield(model,'C0')
     C0 = model.C0;
 else
     C0 = [];

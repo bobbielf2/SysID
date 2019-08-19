@@ -4,6 +4,8 @@ type = qoi.type;
 switch type
     case 'SizeDistr'
         U = sizeDistribution(samps,qoi);
+    case 'SizeMeanVar'
+        U = sizeMeanVar(samps,qoi);    
     case 'MatrixComp'
         U = matrixComposition(samps,qoi);
     case 'ThresholdArea'
